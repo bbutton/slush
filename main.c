@@ -5,6 +5,7 @@
 
 #define MAX_ARGS 15
 #define MAX_ARG_LENGTH 256
+#define DELIMITERS " \n\t"
 
 char ** read_command_line() {
   char ** args = malloc(sizeof(char*[15]));
@@ -14,11 +15,11 @@ char ** read_command_line() {
   size_t length;
   size_t line_length = getline(&buf, &length, stdin);
 
-  char * command = strtok(buf, " \n\t");
+  char * command = strtok(buf, DELIMITERS);
   args[0] = strdup(command);
   
   int i = 1;
-  for(char * arg = strtok(NULL, " \n\t"), i = 1; arg != NULL; arg = strtok(NULL, " \n\t"), i++) {
+  for(char * arg = strtok(NULL, DELIMITERS), i = 1; arg != NULL; arg = strtok(NULL, DELIMITERS), i++) {
     args[i] = strdup(arg);
   }
 
