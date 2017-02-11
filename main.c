@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
       debug(args);
     }
 
-    if(ret != 0) perror("failed to run command");
+    if(ret != 0) perror(args[0]);
 
     free_data(args);
   }
