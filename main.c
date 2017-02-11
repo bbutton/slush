@@ -33,8 +33,14 @@ char ** read_command_line() {
 
 int cd(char ** args) { return chdir(args[1]); }
 
-char * pwd() {
-  return getcwd(NULL, 0);
+int pwd() {
+  char * cwd = getcwd(NULL, 0);
+  if(cwd == NULL) return -1;
+
+  printf("%s\n", cwd);
+  free(cwd);
+
+  return 0;
 }
 
 void debug(char ** args) {
@@ -67,9 +73,7 @@ int main(int argc, char** argv) {
       ret = cd(args);
     }
     else if(strncmp(args[0], "pwd", strlen("pwd")) == 0) {
-      res = pwd();
-      printf("%s\n", res);
-      free(res);
+      ret = pwd();
     }
     else if(strncmp(args[0], "debug", strlen("debug")) == 0) {
       debug(args);
