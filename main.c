@@ -43,15 +43,39 @@ int pwd() {
   return 0;
 }
 
-void debug(char ** args) {
-  for(int i = 0; i < MAX_ARGS; i++) {
+void debug_internal(char ** args, int length) {
+  for(int i = 0; i < length; i++) {
     printf("%d: <%s>\n", i, args[i]);
   }
+}  
+
+void debug(char ** args) {
+  debug_internal(args, MAX_ARGS);
 }
 
 void free_data(char ** args) {
   for(int i = 0; i < MAX_ARGS; i++) if(args[i] != NULL) free(args[i]);
   free(args);
+}
+
+int exec_child(char ** args) {
+  pid_t new_pid = fork();
+  if(new_pid > 0) {
+    int stat_loc = 0;
+    pid_t dead_child = wait(&stat_loc);
+  } else if (new_pid == 0) {
+    char * exe_name = args[0];
+
+    int exec_ret = execvp(exe_name, args);
+    if(exec_ret == -1) {
+      perror(args[0]);
+      exit(exec_ret);
+    }
+  } else {
+    return -1;
+  }
+
+  return 0;
 }
 
 int main(int argc, char** argv) {
@@ -77,6 +101,9 @@ int main(int argc, char** argv) {
     }
     else if(strncmp(args[0], "debug", strlen("debug")) == 0) {
       debug(args);
+    }
+    else {
+      ret = exec_child(args);
     }
 
     if(ret != 0) perror(args[0]);
