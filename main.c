@@ -66,7 +66,7 @@ int exec_child(char ** args) {
   } else if (new_pid == 0) {
     char * exe_name = args[0];
 
-    int exec_ret = execvp(exe_name, args);
+    int exec_ret = execvp(args[0], args);
     if(exec_ret == -1) {
       perror(args[0]);
       exit(exec_ret);
