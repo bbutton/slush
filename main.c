@@ -9,7 +9,7 @@
 #define DELIMITERS " \n\t"
 
 char ** read_command_line() {
-  char ** args = malloc(sizeof(char*[15]));
+  char ** args = malloc(sizeof(char*[MAX_ARGS]));
   for(int i = 0; i < MAX_ARGS; i++) args[i] = NULL;
 
   char * buf = NULL;
