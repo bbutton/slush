@@ -78,8 +78,12 @@ int exec_child(char ** args) {
   return 0;
 }
 
+void handle_interrupt(int signal_num) {
+}
+
+
 int main(int argc, char** argv) {
-  signal(SIGINT, SIG_IGN);
+  signal(SIGINT, handle_interrupt);
   
   while(1) {
     printf("> ");
