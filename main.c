@@ -4,13 +4,13 @@
 #include <unistd.h>
 #include <signal.h>
 
-#define MAX_ARGS 15
+#define MAX_ARGS 17
 #define MAX_ARG_LENGTH 256
 #define DELIMITERS " \n\t"
 
 char ** read_command_line() {
   char ** args = malloc(sizeof(char*[15]));
-  for(int i = 0; i < 15; i++) args[i] = NULL;
+  for(int i = 0; i < MAX_ARGS; i++) args[i] = NULL;
 
   char * buf = NULL;
   size_t length = 0;
@@ -80,7 +80,7 @@ int exec_child(char ** args) {
 
 int main(int argc, char** argv) {
   signal(SIGINT, SIG_IGN);
-
+  
   while(1) {
     printf("> ");
 
