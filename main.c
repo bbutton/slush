@@ -8,10 +8,22 @@
 #define MAX_ARG_LENGTH 256
 #define DELIMITERS " \n\t"
 
-char ** read_command_line() {
+char ** read_command_line(char * command_line) {
   char ** args = malloc(sizeof(char*[MAX_ARGS]));
   for(int i = 0; i < MAX_ARGS; i++) args[i] = NULL;
+  
+  int arg_counter = 0;
+  char * arg = NULL;
+  
+  while((arg = strsep(&command_line, DELIMITERS)) != NULL) {
+    if(strlen(arg) > 0)
+      args[arg_counter++] = strdup(arg);
+  }
 
+  return args;
+}
+
+char *** read_all_commands() {
   char * buf = NULL;
   size_t length = 0;
   ssize_t line_length = getline(&buf, &length, stdin);
@@ -20,16 +32,27 @@ char ** read_command_line() {
     return NULL;
   }
   
-  char * command = strtok(buf, DELIMITERS);
-  args[0] = strdup(command);
+  int separator_count = 0;
+  for(char * tmp = buf; *tmp; tmp++) {
+    separator_count += *tmp == '(';
+  }
   
-  int i = 1;
-  for(char * arg = strtok(NULL, DELIMITERS), i = 1; arg != NULL; arg = strtok(NULL, DELIMITERS), i++) {
-    args[i] = strdup(arg);
+  char *** all_commands = malloc(sizeof(char***[separator_count + 2]));
+  for(int i = 0; i < separator_count + 2; i++) all_commands[i] = NULL;
+  
+  char * command_line = NULL;
+  int command_index = 0;
+  
+  while((command_line = strsep(&buf, "(\n")) != NULL) {
+    while(*command_line && *command_line == ' ') command_line++;
+    if(strlen(command_line) > 0) {
+      all_commands[command_index] = read_command_line(command_line);
+    }
+    command_index++;
   }
 
-  return args;
-}
+  return all_commands;
+}  
 
 int cd(char ** args) { return chdir(args[1]); }
 
@@ -88,31 +111,35 @@ int main(int argc, char** argv) {
   while(1) {
     printf("> ");
 
-    char ** args = read_command_line();
-
-    if(args == NULL) {
+    char *** all_commands = read_all_commands();
+    if(all_commands == NULL) {
       break;
     }
+      
     
-    int ret = 0;
-    char * res = NULL;
-    
-    if(strncmp(args[0], "cd", strlen("cd")) == 0) { 
-      ret = cd(args);
-    }
-    else if(strncmp(args[0], "pwd", strlen("pwd")) == 0) {
-      ret = pwd();
-    }
-    else if(strncmp(args[0], "debug", strlen("debug")) == 0) {
-      debug(args);
-    }
-    else {
-      ret = exec_child(args);
-    }
+    for(int counter = 0; all_commands[counter]; counter++) {
+      char ** args = all_commands[counter];
 
-    if(ret != 0) perror(args[0]);
-
-    free_data(args);
+      int ret = 0;
+      char * res = NULL;
+      
+      if(strncmp(args[0], "cd", strlen("cd")) == 0) {
+	ret = cd(args);
+      }
+      else if(strncmp(args[0], "pwd", strlen("pwd")) == 0) {
+	ret = pwd();
+      }
+      else if(strncmp(args[0], "debug", strlen("debug")) == 0) {
+	debug(args);
+      }
+      else {
+	ret = exec_child(args);
+      }
+      
+      if(ret != 0) perror(args[0]);
+      
+      free_data(args);
+    }
   }
 
   return 0;
