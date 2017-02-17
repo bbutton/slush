@@ -115,7 +115,6 @@ int main(int argc, char** argv) {
     if(all_commands == NULL) {
       break;
     }
-      
     
     for(int counter = 0; all_commands[counter]; counter++) {
       char ** args = all_commands[counter];
@@ -140,6 +139,8 @@ int main(int argc, char** argv) {
       
       free_data(args);
     }
+
+    free(all_commands);
   }
 
   return 0;
